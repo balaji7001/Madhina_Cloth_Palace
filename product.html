@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div style="display:flex;gap:40px;padding:40px;">
+        <img id="img" width="300">
+
+        <div>
+            <h1 id="name"></h1>
+            <p id="desc"></p>
+            <h2 id="price"></h2>
+        </div>
+    </div>
+
+    <script>
+        let p = JSON.parse(localStorage.getItem("product"));
+        img.src = p.img;
+        name.innerText = p.name;
+        price.innerText = "₹" + p.price;
+    </script>
+
+</body>
+
+</html>
