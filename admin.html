@@ -1,50 +1,535 @@
-<h2>Manage Products</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel — Madhina Cloth</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* LOCK */
+        #lockScreen {
+            position: fixed; inset: 0; background: var(--blue);
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; z-index: 999; gap: 16px;
+        }
+        #lockScreen h2 { color: var(--gold); font-size: 1.7rem; font-weight: 800; }
+        #lockScreen p  { color: rgba(255,255,255,0.5); font-size: 0.85rem; }
+        #lockScreen input {
+            padding: 13px 20px; border-radius: 12px; border: none;
+            font-size: 1rem; width: 270px; text-align: center; letter-spacing: 4px;
+            background: rgba(255,255,255,0.1); color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        #lockScreen input::placeholder { color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+        #lockScreen input:focus { outline: none; border-color: var(--gold); }
+        #lockScreen button {
+            padding: 13px 40px; background: var(--gold); color: #fff;
+            border: none; border-radius: 12px; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: background 0.2s;
+        }
+        #lockScreen button:hover { background: #b8962e; }
+        .lock-err { color: #ff6b6b; font-size: 0.85rem; display: none; }
 
-<input id="name" placeholder="Name">
-<input id="price" placeholder="Price">
-<input id="category" placeholder="Category">
+        /* LAYOUT */
+        .admin-wrap { display: none; min-height: 100vh; background: #f4f6fb; }
+        .admin-header {
+            background: var(--blue); color: var(--white);
+            padding: 0 40px; height: 62px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .admin-header h1 { font-size: 1.1rem; font-weight: 700; }
+        .admin-header a {
+            color: var(--gold); font-size: 0.88rem; text-decoration: none;
+            border: 1px solid var(--gold); padding: 7px 16px; border-radius: 20px;
+            transition: all 0.2s;
+        }
+        .admin-header a:hover { background: var(--gold); color: #fff; }
+        .admin-body { display: flex; }
 
-<input type="file" id="imageFile" onchange="previewImage()">
-<img id="preview" width="100" style="display:none">
+        /* SIDEBAR */
+        .sidebar {
+            width: 360px; min-width: 320px; background: #fff;
+            padding: 28px 22px; border-right: 1px solid #e8e8e8;
+            min-height: calc(100vh - 62px); overflow-y: auto;
+        }
+        .sidebar h3 { font-size: 1rem; font-weight: 700; margin-bottom: 20px; color: var(--blue); }
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 13px; }
+        .form-group label {
+            font-size: 0.72rem; font-weight: 700; color: #666;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .form-group input, .form-group select {
+            padding: 10px 13px; border: 1.5px solid #e0e0e0;
+            border-radius: 9px; font-size: 0.9rem; transition: border 0.2s; width: 100%;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(212,175,55,0.1);
+        }
+        .section-label {
+            font-size: 0.68rem; font-weight: 700; color: var(--gold);
+            text-transform: uppercase; letter-spacing: 0.1em;
+            margin: 18px 0 10px; display: flex; align-items: center; gap: 8px;
+        }
+        .section-label::after { content: ""; flex: 1; height: 1px; background: #eee; }
 
-<button onclick="add()">Save</button>
+        /* UPLOAD ZONE */
+        .img-upload-zone {
+            border: 2px dashed #ddd; border-radius: 12px;
+            padding: 20px; text-align: center; cursor: pointer;
+            transition: all 0.2s; position: relative; background: #fafafa;
+        }
+        .img-upload-zone:hover { border-color: var(--gold); background: #fffdf0; }
+        .img-upload-zone input {
+            position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+        }
+        .img-upload-zone img {
+            width: 100px; height: 100px; object-fit: cover;
+            border-radius: 10px; display: none; margin: 0 auto 8px;
+        }
+        .img-upload-zone p { font-size: 0.82rem; color: #aaa; }
+        .img-upload-zone .upload-icon { font-size: 2rem; margin-bottom: 6px; }
+
+        /* CARD PREVIEW */
+        .preview-wrap { margin-top: 22px; }
+        .preview-wrap > p { font-size: 0.72rem; color: #aaa; margin-bottom: 10px; text-align: center; }
+        .preview-card {
+            width: 175px; height: 225px; perspective: 1000px; margin: 0 auto; cursor: default;
+        }
+        .preview-card .inner { width: 100%; height: 100%; transition: 0.6s; transform-style: preserve-3d; }
+        .preview-card:hover .inner { transform: rotateY(180deg); }
+        .preview-card .front, .preview-card .back {
+            position: absolute; width: 100%; height: 100%;
+            border-radius: 14px; overflow: hidden; backface-visibility: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .preview-card .front img { width: 100%; height: 100%; object-fit: cover; }
+        .preview-card .front { background: #eee; }
+        .preview-card .back {
+            background: linear-gradient(160deg, var(--blue), var(--blue2));
+            color: #fff; display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transform: rotateY(180deg); gap: 6px; padding: 14px; text-align: center;
+        }
+        .preview-card .back h3 { font-size: 0.9rem; font-weight: 700; }
+        .preview-card .back .p-price { font-size: 1rem; color: var(--gold-light); font-weight: 800; }
+        .preview-card .back .p-line { font-size: 0.72rem; opacity: 0.8; background: rgba(255,255,255,0.1); padding: 3px 10px; border-radius: 20px; width: 100%; }
+
+        /* BUTTONS */
+        .btn-row { display: flex; gap: 10px; margin-top: 18px; }
+        .btn-save {
+            flex: 1; padding: 12px; background: var(--gold); color: #fff;
+            border: none; border-radius: 9px; font-size: 0.92rem; cursor: pointer;
+            font-weight: 700; transition: background 0.2s;
+        }
+        .btn-save:hover { background: #b8962e; }
+        .btn-cancel {
+            padding: 12px 16px; background: #eee; color: #666;
+            border: none; border-radius: 9px; font-size: 0.92rem; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-cancel:hover { background: #ddd; }
+
+        /* MAIN PANEL */
+        .main-panel { flex: 1; padding: 28px 30px; }
+        .stats { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+        .stat-card {
+            background: #fff; border-radius: 14px; padding: 18px 24px;
+            flex: 1; min-width: 120px; box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--gold);
+        }
+        .stat-val { font-size: 1.7rem; font-weight: 800; color: var(--blue); }
+        .stat-lbl { font-size: 0.72rem; color: #999; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        .panel-top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px; flex-wrap: wrap; gap: 12px;
+        }
+        .panel-top h3 { font-size: 1rem; font-weight: 700; color: var(--blue); }
+        .panel-search {
+            padding: 9px 16px; border: 1.5px solid #ddd; border-radius: 25px;
+            font-size: 0.88rem; width: 230px; transition: all 0.2s;
+        }
+        .panel-search:focus { outline: none; border-color: var(--gold); }
+
+        /* TABLE */
+        .product-table {
+            width: 100%; border-collapse: collapse; background: #fff;
+            border-radius: 14px; overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+        }
+        .product-table th {
+            background: var(--blue); color: #fff;
+            padding: 13px 16px; text-align: left; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+        }
+        .product-table td {
+            padding: 12px 16px; border-bottom: 1px solid #f2f2f2;
+            font-size: 0.86rem; vertical-align: middle;
+        }
+        .product-table tr:last-child td { border-bottom: none; }
+        .product-table tr:hover td { background: #fafbff; }
+        .product-table img { width: 50px; height: 50px; object-fit: cover; border-radius: 10px; }
+        .badge {
+            display: inline-block; padding: 3px 12px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 600; background: #eef2ff; color: var(--blue);
+        }
+        .tbl-edit {
+            background: var(--blue); color: #fff; border: none;
+            padding: 6px 13px; border-radius: 7px; cursor: pointer;
+            font-size: 0.78rem; margin-right: 6px; transition: background 0.2s;
+        }
+        .tbl-delete {
+            background: #ff4d4d; color: #fff; border: none;
+            padding: 6px 13px; border-radius: 7px; cursor: pointer;
+            font-size: 0.78rem; transition: background 0.2s;
+        }
+        .tbl-edit:hover { background: #0d3060; }
+        .tbl-delete:hover { background: #cc0000; }
+        .tbl-add-line {
+            background: none; border: 1.5px dashed #ccc; color: #bbb;
+            padding: 4px 10px; border-radius: 6px; cursor: pointer;
+            font-size: 0.75rem; transition: all 0.2s;
+        }
+        .tbl-add-line:hover { border-color: var(--gold); color: var(--gold); }
+        .empty-state { text-align: center; padding: 60px 20px; color: #ccc; font-size: 0.95rem; }
+
+        /* TOAST */
+        #toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: #222; color: #fff; padding: 12px 22px;
+            border-radius: 12px; font-size: 0.86rem;
+            opacity: 0; pointer-events: none; transition: opacity 0.3s;
+            z-index: 9999; display: flex; align-items: center; gap: 8px;
+        }
+        #toast.show { opacity: 1; }
+        #toast.success { background: #1b5e20; }
+        #toast.error   { background: #b71c1c; }
+    </style>
+</head>
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+    <h2>🔐 Admin Panel</h2>
+    <p>Enter password to continue</p>
+    <input type="password" id="passInput" placeholder="Password">
+    <button onclick="unlock()">Unlock</button>
+    <span class="lock-err" id="lockErr">❌ Incorrect password</span>
+</div>
+
+<!-- ADMIN WRAP -->
+<div class="admin-wrap" id="adminWrap">
+
+    <div class="admin-header">
+        <h1>👑 Madhina Cloth — Admin Panel</h1>
+        <a href="index.html">← Back to Store</a>
+    </div>
+
+    <div class="admin-body">
+
+        <!-- SIDEBAR FORM -->
+        <div class="sidebar" id="sidebar">
+            <h3 id="formTitle">➕ Add New Product</h3>
+
+            <div class="section-label">Basic Info</div>
+            <div class="form-group">
+                <label>Product Name</label>
+                <input id="fname" placeholder="e.g. Party Dress">
+            </div>
+            <div class="form-group">
+                <label>Price (₹)</label>
+                <input id="fprice" type="number" placeholder="e.g. 799" min="0">
+            </div>
+            <div class="form-group">
+                <label>Category</label>
+                <select id="fcategory">
+                    <option value="">— Select Category —</option>
+                    <optgroup label="Women">
+                        <option>dress</option><option>shirt</option><option>t-shirt</option>
+                        <option>shorts</option><option>jeans</option><option>leggings</option>
+                        <option>skirt</option><option>saree</option>
+                    </optgroup>
+                    <optgroup label="Men">
+                        <option>men shirt</option><option>men t-shirt</option><option>men shorts</option>
+                        <option>men jeans</option><option>men nightwear</option><option>men innerwear</option>
+                    </optgroup>
+                    <optgroup label="Kids">
+                        <option>kid dress</option><option>kid shirt</option><option>kid t-shirt</option>
+                        <option>kid shorts</option><option>kid jeans</option><option>kid leggings</option>
+                        <option>kid skirt</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="section-label">Card Back Side</div>
+            <div class="form-group">
+                <label>Line 1 — Material / Fabric</label>
+                <input id="fline1" placeholder="e.g. Material: Pure Cotton">
+            </div>
+            <div class="form-group">
+                <label>Line 2 — Sizes / Offer</label>
+                <input id="fline2" placeholder="e.g. Sizes: S / M / L / XL">
+            </div>
+
+            <div class="section-label">Product Image</div>
+            <div class="img-upload-zone" id="uploadZone">
+                <input type="file" id="fimage" accept="image/*" onchange="handleImageUpload()">
+                <div class="upload-icon" id="uploadIcon">📷</div>
+                <img id="fpreview">
+                <p id="uploadHint">Click or drag image here</p>
+            </div>
+
+            <div class="preview-wrap">
+                <p>Card Preview — hover to flip</p>
+                <div class="preview-card">
+                    <div class="inner">
+                        <div class="front"><img id="prevImg" src="" alt="preview"></div>
+                        <div class="back">
+                            <h3 id="prevName">Product Name</h3>
+                            <span class="p-price" id="prevPrice">₹0</span>
+                            <span class="p-line" id="prevLine1" style="display:none"></span>
+                            <span class="p-line" id="prevLine2" style="display:none"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <button class="btn-save" onclick="saveProduct()">💾 Save Product</button>
+                <button class="btn-cancel" onclick="resetForm()">✕ Clear</button>
+            </div>
+        </div>
+
+        <!-- MAIN PANEL -->
+        <div class="main-panel">
+            <div class="stats" id="statsRow"></div>
+
+            <div class="panel-top">
+                <h3>All Products</h3>
+                <input class="panel-search" id="adminSearch" placeholder="🔍 Search..." oninput="renderTable()">
+            </div>
+
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Back Line 1</th>
+                        <th>Back Line 2</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productTableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none">
+                😔 No products found.
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
 
 <script src="script.js"></script>
-
 <script>
-    function previewImage() {
-        let file = imageFile.files[0];
-        let reader = new FileReader();
+    const ADMIN_PASS = "admin123";
+    let editingId = null;
+    let uploadedImg = null;
+
+    /* LOCK */
+    function unlock() {
+        if (passInput.value === ADMIN_PASS) {
+            lockScreen.style.display = "none";
+            adminWrap.style.display = "block";
+            init();
+        } else {
+            lockErr.style.display = "block";
+            passInput.value = "";
+            passInput.focus();
+        }
+    }
+    passInput.addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
+
+    /* INIT */
+    function init() {
+        renderStats();
+        renderTable();
+        bindLivePreview();
+        const eid = localStorage.getItem("editId");
+        if (eid) {
+            localStorage.removeItem("editId");
+            const p = products.find(x => x.id == eid);
+            if (p) loadForm(p);
+        }
+    }
+
+    /* LIVE PREVIEW */
+    function bindLivePreview() {
+        ["fname","fprice","fline1","fline2"].forEach(id => {
+            document.getElementById(id).addEventListener("input", updatePreview);
+        });
+    }
+    function updatePreview() {
+        prevName.textContent = fname.value || "Product Name";
+        prevPrice.textContent = "₹" + (fprice.value || "0");
+        if (fline1.value) { prevLine1.textContent = fline1.value; prevLine1.style.display = ""; }
+        else { prevLine1.style.display = "none"; }
+        if (fline2.value) { prevLine2.textContent = fline2.value; prevLine2.style.display = ""; }
+        else { prevLine2.style.display = "none"; }
+    }
+
+    /* IMAGE UPLOAD */
+    function handleImageUpload() {
+        const file = fimage.files[0];
+        if (!file) return;
+        const reader = new FileReader();
         reader.onload = e => {
-            preview.src = e.target.result;
-            preview.style.display = "block";
+            uploadedImg = e.target.result;
+            fpreview.src = uploadedImg;
+            fpreview.style.display = "block";
+            uploadHint.style.display = "none";
+            uploadIcon.style.display = "none";
+            prevImg.src = uploadedImg;
         };
         reader.readAsDataURL(file);
     }
 
-    function add() {
-        let file = imageFile.files[0];
-        let editId = localStorage.getItem("editId");
+    /* STATS */
+    function renderStats() {
+        const cats  = [...new Set(products.map(p => p.category))];
+        const total = products.length;
+        const avg   = total ? Math.round(products.reduce((s,p) => s + Number(p.price), 0) / total) : 0;
+        const max   = total ? Math.max(...products.map(p => Number(p.price))) : 0;
+        statsRow.innerHTML = `
+            <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total Products</div></div>
+            <div class="stat-card"><div class="stat-val">${cats.length}</div><div class="stat-lbl">Categories</div></div>
+            <div class="stat-card"><div class="stat-val">₹${avg}</div><div class="stat-lbl">Avg. Price</div></div>
+            <div class="stat-card"><div class="stat-val">₹${max}</div><div class="stat-lbl">Highest Price</div></div>
+        `;
+    }
 
-        function save(img) {
-            if (editId) {
-                products = products.map(p => p.id == editId ? { ...p, name: name.value, price: price.value, category: category.value, img: img || p.img } : p);
-                localStorage.removeItem("editId");
-            } else {
-                if (!name.value || !price.value || !category.value) {
-                    alert("Fill all fields");
-                    return;
-                }
-            }
-            localStorage.setItem("products", JSON.stringify(products));
-            alert("Saved");
-            location.reload();
+    /* TABLE */
+    function renderTable() {
+        const q = (adminSearch.value || "").toLowerCase();
+        const filtered = products.filter(p =>
+            (p.name || "").toLowerCase().includes(q) ||
+            (p.category || "").toLowerCase().includes(q)
+        );
+        productTableBody.innerHTML = "";
+        emptyState.style.display = filtered.length ? "none" : "block";
+
+        filtered.forEach((p, i) => {
+            const l1 = p.backLine1 || "";
+            const l2 = p.backLine2 || "";
+            productTableBody.innerHTML += `
+            <tr>
+                <td style="color:#bbb;font-size:0.78rem">${i + 1}</td>
+                <td><img src="${p.img || ""}" alt="${p.name}" onerror="this.style.opacity='0.2'"></td>
+                <td><strong>${p.name}</strong></td>
+                <td><strong>₹${p.price}</strong></td>
+                <td><span class="badge">${p.category}</span></td>
+                <td>${l1 || `<button class="tbl-add-line" onclick="quickEdit(${p.id},'backLine1')">+ Add</button>`}</td>
+                <td>${l2 || `<button class="tbl-add-line" onclick="quickEdit(${p.id},'backLine2')">+ Add</button>`}</td>
+                <td>
+                    <button class="tbl-edit" onclick="loadForm(products.find(x=>x.id==${p.id}))">✏️ Edit</button>
+                    <button class="tbl-delete" onclick="deleteRow(${p.id})">🗑 Delete</button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    /* LOAD FORM */
+    function loadForm(p) {
+        if (!p) return;
+        editingId = p.id;
+        fname.value     = p.name     || "";
+        fprice.value    = p.price    || "";
+        fcategory.value = p.category || "";
+        fline1.value    = p.backLine1 || "";
+        fline2.value    = p.backLine2 || "";
+        uploadedImg = p.img || null;
+        if (p.img) {
+            fpreview.src = p.img; fpreview.style.display = "block";
+            uploadHint.style.display = "none"; uploadIcon.style.display = "none";
+            prevImg.src = p.img;
         }
+        updatePreview();
+        formTitle.textContent = "✏️ Edit Product";
+        sidebar.scrollTop = 0;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        fname.focus();
+    }
 
-        if (file) {
-            let reader = new FileReader();
-            reader.onload = e => save(e.target.result);
-            reader.readAsDataURL(file);
-        } else save(null);
+    /* SAVE */
+    function saveProduct() {
+        const name     = fname.value.trim();
+        const price    = fprice.value.trim();
+        const category = fcategory.value;
+        if (!name || !price || !category) {
+            showToast("Fill in Name, Price and Category", "error"); return;
+        }
+        const data = {
+            name, price: Number(price), category,
+            backLine1: fline1.value.trim(),
+            backLine2: fline2.value.trim(),
+            img: uploadedImg || ""
+        };
+        if (editingId) {
+            products = products.map(p => p.id == editingId ? { ...p, ...data } : p);
+            showToast("✓ Product updated", "success");
+        } else {
+            products.push({ id: Date.now(), ...data });
+            showToast("✓ Product added", "success");
+        }
+        localStorage.setItem("products", JSON.stringify(products));
+        resetForm(); renderStats(); renderTable();
+    }
+
+    /* DELETE */
+    function deleteRow(id) {
+        if (!confirm("Delete this product?")) return;
+        products = products.filter(p => p.id != id);
+        localStorage.setItem("products", JSON.stringify(products));
+        renderStats(); renderTable();
+        showToast("Product deleted", "error");
+    }
+
+    /* QUICK EDIT */
+    function quickEdit(id, field) {
+        const p = products.find(x => x.id == id);
+        const label = field === "backLine1" ? "Back Line 1 (Material)" : "Back Line 2 (Sizes)";
+        const val = prompt(`Edit ${label}:`, p[field] || "");
+        if (val === null) return;
+        p[field] = val.trim();
+        localStorage.setItem("products", JSON.stringify(products));
+        renderTable(); showToast("✓ Updated", "success");
+    }
+
+    /* RESET */
+    function resetForm() {
+        editingId = null; uploadedImg = null;
+        fname.value = fprice.value = fline1.value = fline2.value = "";
+        fcategory.value = "";
+        fpreview.src = ""; fpreview.style.display = "none";
+        uploadHint.style.display = "block"; uploadIcon.style.display = "block";
+        prevImg.src = ""; prevName.textContent = "Product Name";
+        prevPrice.textContent = "₹0";
+        prevLine1.textContent = ""; prevLine1.style.display = "none";
+        prevLine2.textContent = ""; prevLine2.style.display = "none";
+        formTitle.textContent = "➕ Add New Product";
+        fimage.value = "";
+    }
+
+    /* TOAST */
+    function showToast(msg, type = "") {
+        toast.textContent = msg;
+        toast.className = "show " + type;
+        setTimeout(() => { toast.className = ""; }, 2800);
     }
 </script>
+</body>
+</html>

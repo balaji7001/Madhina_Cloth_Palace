@@ -1,30 +1,154 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product — Madhina Cloth Palace</title>
     <link rel="stylesheet" href="style.css">
-</head>
+    <style>
+        .product-page {
+            max-width: 1000px; margin: 60px auto; padding: 0 40px;
+            display: flex; gap: 60px; align-items: flex-start;
+        }
+        .product-img-wrap {
+            flex-shrink: 0; width: 380px; position: relative;
+        }
+        .product-img {
+            width: 100%; height: 480px; object-fit: cover;
+            border-radius: 24px; box-shadow: var(--shadow);
+            cursor: zoom-in; transition: transform 0.3s;
+        }
+        .product-img:hover { transform: scale(1.02); }
+        .product-img-badge {
+            position: absolute; top: 16px; left: 16px;
+            background: var(--gold); color: #fff; padding: 6px 14px;
+            border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+            box-shadow: 0 4px 12px rgba(212,175,55,0.4);
+        }
 
+        .product-info { flex: 1; }
+        .product-info .cat-badge {
+            display: inline-block; background: #eef; color: var(--blue);
+            padding: 5px 16px; border-radius: 20px; font-size: 0.75rem;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+        .product-info h1 {
+            font-size: 2.2rem; font-weight: 800; line-height: 1.2;
+            margin-bottom: 12px; color: var(--blue);
+        }
+        .product-info .price {
+            font-size: 2rem; color: var(--gold); font-weight: 800;
+            margin-bottom: 28px; letter-spacing: -0.5px;
+        }
+
+        .detail-section { margin-bottom: 28px; }
+        .detail-section h3 {
+            font-size: 0.85rem; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 12px;
+        }
+        .detail-row {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 14px 0; border-bottom: 1px solid #f0f0f0;
+            font-size: 0.92rem;
+        }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row .lbl {
+            color: #999; min-width: 100px; flex-shrink: 0; font-weight: 500;
+        }
+        .detail-row .val { font-weight: 500; color: var(--blue); }
+
+        .btn-group { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; background: var(--blue); color: #fff;
+            border: none; border-radius: 30px; font-size: 0.95rem;
+            cursor: pointer; text-decoration: none; font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-back:hover { background: var(--blue2); transform: translateY(-2px); }
+        .btn-whatsapp {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px; background: #25d366; color: #fff;
+            border: none; border-radius: 30px; font-size: 0.95rem;
+            cursor: pointer; text-decoration: none; font-weight: 600;
+            transition: all 0.2s; box-shadow: 0 4px 16px rgba(37,211,102,0.3);
+        }
+        .btn-whatsapp:hover { background: #1ebe5d; transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .product-page { flex-direction: column; margin: 30px auto; padding: 0 20px; gap: 30px; }
+            .product-img-wrap { width: 100%; }
+            .product-img { height: 340px; }
+            .product-info h1 { font-size: 1.6rem; }
+            .btn-group { flex-direction: column; }
+            .btn-back, .btn-whatsapp { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
 <body>
 
-    <div style="display:flex;gap:40px;padding:40px;">
-        <img id="img" width="300">
+<header class="navbar">
+    <div class="logo"><img src="images/logo.jpeg" alt="Logo"></div>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="https://maps.app.goo.gl/cGk4r43jKUb2GvE18" target="_blank">📍 Location</a>
+        <a href="admin.html" class="nav-admin">⚙ Admin</a>
+    </div>
+</header>
 
-        <div>
-            <h1 id="name"></h1>
-            <p id="desc"></p>
-            <h2 id="price"></h2>
-        </div>
+<div class="product-page">
+    <div class="product-img-wrap">
+        <div class="product-img-badge" id="pBadge">In Stock</div>
+        <img class="product-img" id="pImg" alt="Product Image" onclick="this.requestFullscreen()">
     </div>
 
-    <script>
-        let p = JSON.parse(localStorage.getItem("product"));
-        img.src = p.img;
-        name.innerText = p.name;
-        price.innerText = "₹" + p.price;
-    </script>
+    <div class="product-info">
+        <span class="cat-badge" id="pCat"></span>
+        <h1 id="pName"></h1>
+        <div class="price" id="pPrice"></div>
 
+        <div class="detail-section">
+            <h3>Product Details</h3>
+            <div id="pDetails"></div>
+        </div>
+
+        <div class="btn-group">
+            <a class="btn-back" href="index.html">← Back to Store</a>
+            <a class="btn-whatsapp" id="waLink" href="#" target="_blank">💬 Enquire on WhatsApp</a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>© 2024 <span>Madhina Cloth Palace</span> — All rights reserved.</p>
+</footer>
+
+<script>
+    const p = JSON.parse(localStorage.getItem("product"));
+    if (!p) { window.location.href = "index.html"; }
+
+    pImg.src = p.img || "";
+    pImg.alt = p.name;
+    pName.textContent = p.name;
+    pPrice.textContent = "₹" + p.price;
+    pCat.textContent = p.category;
+
+    const rows = [
+        { lbl: "Category", val: p.category },
+        p.backLine1 ? { lbl: "Material", val: p.backLine1 } : null,
+        p.backLine2 ? { lbl: "Sizes", val: p.backLine2 } : null,
+        { lbl: "Price", val: "₹" + p.price }
+    ].filter(Boolean);
+
+    pDetails.innerHTML = rows.map(r => `
+        <div class="detail-row">
+            <span class="lbl">${r.lbl}</span>
+            <span class="val">${r.val}</span>
+        </div>`).join("");
+
+    waLink.href = `https://wa.me/?text=${encodeURIComponent(`Hi! I'm interested in *${p.name}* priced at ₹${p.price} from Madhina Cloth Palace.`)}`;
+</script>
 </body>
-
 </html>

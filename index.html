@@ -1,78 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Madhina Cloth</title>
+    <title>Madhina Cloth Palace — Premium Fashion Store</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-    <header class="navbar">
-        <div class="logo">
-            <img src="images/logo.jpeg">
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo"><img src="images/logo.jpeg" alt="Logo"></div>
+    <div class="nav-links">
+        <a href="index.html" class="active">Home</a>
+        <a href="https://maps.app.goo.gl/cGk4r43jKUb2GvE18" target="_blank">📍 Location</a>
+        <a href="admin.html" class="nav-admin">⚙ Admin</a>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-left">
+        <h1>Madhina Cloth <span>Palace</span> </h1>
+        <p class="sub">Premium quality clothing crafted from soft, durable cotton. Exclusive collections for men, women &amp; kids.</p>
+        <div class="hero-btns">
+            <a href="#shop" class="btn-hero-primary">Shop Now</a>
+            <a href="https://maps.app.goo.gl/cGk4r43jKUb2GvE18" target="_blank" class="btn-hero-secondary">Visit Store</a>
         </div>
+    </div>
+    <div class="hero-right">
+        <img src="images/frontpage.png" alt="Featured Collection">
+        <div class="hero-badge">✨ New Arrivals</div>
+    </div>
+</section>
 
-        <nav>
-            <a class="active">Home</a>
-            <a href="https://maps.app.goo.gl/cGk4r43jKUb2GvE18">Maps</a>
-            <a href="admin.html">Admin</a>
-        </nav>
-    </header>
+<!-- FEATURES STRIP -->
+<section class="features">
+    <div class="feature-item"><span>🧵</span> Premium Quality</div>
+    <div class="feature-item"><span>💰</span> Affordable Prices</div>
+    <div class="feature-item"><span>👗</span> Wide Selection</div>
+    <div class="feature-item"><span>⚡</span> Fast Service</div>
+</section>
 
-    <section class="hero">
-        <div class="hero-left">
-            <h1>Madhina Cloth Palace 👑 </h1>
-            <p class="sub">Made from Soft Durable Cotton</p>
-        </div>
+<!-- SHOP SECTION -->
+<div id="shop">
+    <div class="section-header">
+        <h2>Our Collection</h2>
+        <p>Browse our curated selection — hover a card to see details, click to preview</p>
+    </div>
 
-        <div class="hero-right">
-            <img src="images/frontpage.png">
-        </div>
-    </section>
-
-    <section class="category">
-        <h2>Category</h2>
-
+    <!-- FILTERS -->
+    <div class="filters-wrap">
         <div class="filters">
-            <button class="pill active">All</button>
-            <button class="pill">dress</button>
-            <button class="pill">shirt</button>
-            <button class="pill">t-shirt</button>
-            <button class="pill">shorts</button>
-            <button class="pill">jeans</button>
-            <button class="pill">leggings</button>
-            <button class="pill">skirt</button>
-            <button class="pill">saree</button>
-            <button class="pill">men shirt</button>
-            <button class="pill">men t-shirt</button>
-            <button class="pill">men shorts</button>
-            <button class="pill">men jeans</button>
-            <button class="pill">men nightwear</button>
-            <button class="pill">men innerwear</button>
-            <button class="pill">kid dress</button>
-            <button class="pill">kid shirt</button>
-            <button class="pill">kid t-shirt</button>
-            <button class="pill">kid shorts</button>
-            <button class="pill">kid jeans</button>
-            <button class="pill">kid leggings</button>
-            <button class="pill">kid skirt</button>
-            <button class="pill">kid shorts</button>
-            <button class="pill">kid jeans</button>
-            <button class="pill">kid leggings</button>
-            <button class="pill">kid skirt</button>
+            <button class="pill active" data-cat="All">All</button>
+            <button class="pill" data-cat="dress">Dress</button>
+            <button class="pill" data-cat="shirt">Shirt</button>
+            <button class="pill" data-cat="t-shirt">T-Shirt</button>
+            <button class="pill" data-cat="shorts">Shorts</button>
+            <button class="pill" data-cat="jeans">Jeans</button>
+            <button class="pill" data-cat="leggings">Leggings</button>
+            <button class="pill" data-cat="skirt">Skirt</button>
+            <button class="pill" data-cat="saree">Saree</button>
+            <button class="pill" data-cat="men shirt">Men Shirt</button>
+            <button class="pill" data-cat="men t-shirt">Men T-Shirt</button>
+            <button class="pill" data-cat="men shorts">Men Shorts</button>
+            <button class="pill" data-cat="men jeans">Men Jeans</button>
+            <button class="pill" data-cat="men nightwear">Men Nightwear</button>
+            <button class="pill" data-cat="men innerwear">Men Innerwear</button>
+            <button class="pill" data-cat="kid dress">Kid Dress</button>
+            <button class="pill" data-cat="kid shirt">Kid Shirt</button>
+            <button class="pill" data-cat="kid t-shirt">Kid T-Shirt</button>
+            <button class="pill" data-cat="kid shorts">Kid Shorts</button>
+            <button class="pill" data-cat="kid jeans">Kid Jeans</button>
+            <button class="pill" data-cat="kid leggings">Kid Leggings</button>
+            <button class="pill" data-cat="kid skirt">Kid Skirt</button>
         </div>
+        <div class="search-wrap">
+            <input type="text" id="search" placeholder="🔍  Search products..." class="search">
+        </div>
+    </div>
 
-        <!-- SEARCH -->
-        <input type="text" id="search" placeholder="Search products..." class="search">
-
-        <!-- PRODUCTS -->
+    <!-- PRODUCTS -->
+    <section class="products-section">
+        <div class="products-count" id="productsCount"></div>
         <div class="products" id="products"></div>
+        <div class="no-products" id="noProducts" style="display:none">
+            <p>😔 No products found. Try a different search or category.</p>
+        </div>
     </section>
+</div>
 
-    <script src="script.js"></script>
+<!-- LIGHTBOX -->
+<div id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" alt="Product Preview">
+    <div class="lightbox-info">
+        <h3 id="lightboxName"></h3>
+        <p id="lightboxPrice"></p>
+        <div class="lightbox-lines">
+            <span id="lightboxLine1"></span>
+            <span id="lightboxLine2"></span>
+        </div>
+    </div>
+    <div class="lightbox-nav">
+        <button onclick="closeLightbox()">✕ Close</button>
+        <button class="lb-open-btn" id="lightboxOpenBtn">View Full Details →</button>
+    </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2024 <span>Madhina Cloth Palace</span> — All rights reserved.</p>
+</footer>
+
+<script src="script.js"></script>
 </body>
-
 </html>
